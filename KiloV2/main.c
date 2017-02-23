@@ -35,7 +35,7 @@
 #define SAFETY_DELAY					 200
 #define CLAW_TRIGGER					1028 //last working val is 800
 #define CLAW_LIMIT						 //find the right val for this
-#define CLAW_GRASP_POWER			 -60
+#define CLAW_GRASP_POWER			 -0
 
 
 // final motor drive
@@ -232,10 +232,46 @@ void pre_auton()
 #warning "autonomous"
 task autonomous()
 {
+	//DB: positive=forwards
+	//lift:positive=down
+	//claw: positive=open
+	setClaw(-127);
+	//wait1Msec(2000)
+	wait1Msec(1500);
+	setClaw(-30);
+	setLDriveBase(127);
+	setRDriveBase(127);
+	wait1Msec(1000);
+	setLDriveBase(0);
+	setRDriveBase(0);
+	wait1Msec(10);
+	setRDriveBase(-127);
+	setLDriveBase(127);
+	wait1Msec(1000);
+	setLDriveBase(0);
+	setRDriveBase(0);
+	wait1Msec(10);
+	setLift(-127);
+	wait1Msec(1000);
+	setLift(0);
+	setRDriveBase(-127);
+	setLDriveBase(-127);
+	wait1Msec(2500);
+	setLift(-127);
+	setClaw(127);
+	wait1Msec(1000);
+	setClaw(0);
+	wait1Msec(500);
+	setLift(0);
+	wait1Msec(500);
+	setLift(-30);
+	wait1Msec(200);
+	stopAllMotors();
+
 	// Remove this function call once you have "real" code.
-	AutonomousCodePlaceholderForTesting();
+	//AutonomousCodePlaceholderForTesting();
 	//clearLCDLine(0);
-	displayLCDCenteredString(0, "Autonomous testing Abner"); //this is temp
+	//displayLCDCenteredString(0, "Autonomous testing Abner"); //this is temp
 }
 
 
@@ -258,11 +294,24 @@ task usercontrol()
 
 		//claw
 
-		if((vexRT[ Btn5U ] || vexRT[ Btn5D ]) && (SensorValue[ rightClawPot ] <= CLAW_TRIGGER))
-			setClaw(CLAW_GRASP_POWER);
+		//if((vexRT[ Btn5U ] || vexRT[ Btn5D ]) && (SensorValue[ rightClawPot ] <= CLAW_TRIGGER))
+		//	setClaw(CLAW_GRASP_POWER);
 
-		if((vexRT[ Btn5U ] + vexRT[ Btn5D ] != 1) && (SensorValue[ rightClawPot ] > CLAW_TRIGGER))
-			setClaw((vexRT[ Btn5U ] - vexRT[ Btn5D ]) * -127);
+		//if((vexRT[ Btn5U ] + vexRT[ Btn5D ] != 1) && (SensorValue[ rightClawPot ] > CLAW_TRIGGER))
+		//	setClaw((vexRT[ Btn5U ] - vexRT[ Btn5D ]) * -127);
+
+		if(vexRT[ Btn5U ] || vexRT[ Btn5D ]){
+			if(vexRT[Btn5U]&&SensorValue[ rightClawPot ] <= CLAW_TRIGGER)
+				setClaw(CLAW_GRASP_POWER);
+			else setClaw((vexRT[ Btn5U ] - vexRT[ Btn5D ]) * -127);
+		}
+		//else if(SensorValue[ rightClawPot ] <= CLAW_TRIGGER){
+		//	setClaw(CLAW_GRASP_POWER);
+		//	if(vexRT[Btn6D]+vexRT[Btn6U]==0)
+		//		setLift(-10);
+		//}
+		else
+			setClaw(0);
 
 		//auto claw grasp
 		//if(SensorValue[ rightClawPot ] < CLAW_TRIGGER && (vexRT[ Btn5U ] + vexRT[ Btn5D ] == 0))
