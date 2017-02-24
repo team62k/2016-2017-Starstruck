@@ -35,13 +35,13 @@
 #define SAFETY_DELAY					 200
 #define CLAW_TRIGGER					1028 //last working val is 800
 #define CLAW_LIMIT						 //find the right val for this
-#define CLAW_GRASP_POWER			 -0
+#define CLAW_GRASP_POWER			  50
 
 
 // final motor drive
 long            motor_driveR;            /// RIGHT
 long            motor_driveL;            /// LEFT
-
+bool 					  clawTriggered = false;
 
 /*///////////////////////////////////////////////////////////
 /////                     __ ___  _  __                 /////
@@ -293,28 +293,28 @@ task usercontrol()
 		//setLift(vexRT[ Btn6U ] || vexRT[ Btn6D ] ? (vexRT[ Btn6U ] - vexRT[ Btn6D ]) * -127 : 20); //experiment with Trim, careful with stalling
 
 		//claw
+		if(vexRT[ Btn5U ] || vexRT[ Btn5D ])
+		{
 
-		//if((vexRT[ Btn5U ] || vexRT[ Btn5D ]) && (SensorValue[ rightClawPot ] <= CLAW_TRIGGER))
-		//	setClaw(CLAW_GRASP_POWER);
+			if((SensorValue[ rightClawPot ] < CLAW_TRIGGER) && vexRT[ Btn5U ])
+			{
+				setClaw(-CLAW_GRASP_POWER);
 
-		//if((vexRT[ Btn5U ] + vexRT[ Btn5D ] != 1) && (SensorValue[ rightClawPot ] > CLAW_TRIGGER))
-		//	setClaw((vexRT[ Btn5U ] - vexRT[ Btn5D ]) * -127);
+			}
 
-		if(vexRT[ Btn5U ] || vexRT[ Btn5D ]){
-			if(vexRT[Btn5U]&&SensorValue[ rightClawPot ] <= CLAW_TRIGGER)
+			else if((SensorValue[ rightClawPot ] < CLAW_TRIGGER) && vexRT[ Btn5D ])
+			{
 				setClaw(CLAW_GRASP_POWER);
-			else setClaw((vexRT[ Btn5U ] - vexRT[ Btn5D ]) * -127);
-		}
-		//else if(SensorValue[ rightClawPot ] <= CLAW_TRIGGER){
-		//	setClaw(CLAW_GRASP_POWER);
-		//	if(vexRT[Btn6D]+vexRT[Btn6U]==0)
-		//		setLift(-10);
-		//}
-		else
-			setClaw(0);
 
-		//auto claw grasp
-		//if(SensorValue[ rightClawPot ] < CLAW_TRIGGER && (vexRT[ Btn5U ] + vexRT[ Btn5D ] == 0))
+			}
+
+			else if((SensorValue[ rightClawPot ] > CLAW_TRIGGER) && (vexRT[ Btn5U ] || vexRT[ Btn5D ]))
+				setClaw((vexRT[ Btn5U ] - vexRT[ Btn5D ]) * -127);
+
+			else
+				setClaw(0);
+		}
+		setClaw(0);
 
 		//PID (yay)
 		//startTask(PIDclaw());
