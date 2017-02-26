@@ -9,7 +9,7 @@
 #pragma config(Motor,  port4,           LFrontDriveBase, tmotorVex393_MC29, openLoop, driveLeft, encoderPort, I2C_2)
 #pragma config(Motor,  port5,           RFrontDriveBase, tmotorVex393_MC29, openLoop, reversed, driveRight, encoderPort, I2C_1)
 #pragma config(Motor,  port6,           leftLift,      tmotorVex393_MC29, openLoop, driveLeft)
-#pragma config(Motor,  port7,           leftClaw,      tmotorVex393_MC29, openLoop, reversed, driveLeft)
+#pragma config(Motor,  port7,           leftClaw,      tmotorVex393_MC29, openLoop, driveLeft)
 #pragma config(Motor,  port8,           rightMidLift,  tmotorVex393_MC29, openLoop, driveRight)
 #pragma config(Motor,  port9,           rightLift,     tmotorVex393_MC29, openLoop, reversed, driveRight)
 #pragma config(Motor,  port10,          leftMidLift,   tmotorVex393_HBridge, openLoop, reversed, driveLeft)
@@ -35,7 +35,7 @@
 #define SAFETY_DELAY					 200
 #define CLAW_TRIGGER					1028 //last working val is 800
 #define CLAW_LIMIT						 //find the right val for this
-#define CLAW_GRASP_POWER			  50
+#define CLAW_GRASP_POWER			  40
 
 
 // final motor drive
@@ -232,41 +232,12 @@ void pre_auton()
 #warning "autonomous"
 task autonomous()
 {
-	//DB: positive=forwards
-	//lift:positive=down
-	//claw: positive=open
-	setClaw(-127);
-	//wait1Msec(2000)
-	wait1Msec(1500);
-	setClaw(-30);
-	setLDriveBase(127);
-	setRDriveBase(127);
-	wait1Msec(1000);
-	setLDriveBase(0);
-	setRDriveBase(0);
-	wait1Msec(10);
-	setRDriveBase(-127);
-	setLDriveBase(127);
-	wait1Msec(1000);
-	setLDriveBase(0);
-	setRDriveBase(0);
-	wait1Msec(10);
-	setLift(-127);
-	wait1Msec(1000);
-	setLift(0);
-	setRDriveBase(-127);
-	setLDriveBase(-127);
-	wait1Msec(2500);
-	setLift(-127);
-	setClaw(127);
-	wait1Msec(1000);
-	setClaw(0);
-	wait1Msec(500);
-	setLift(0);
-	wait1Msec(500);
-	setLift(-30);
-	wait1Msec(200);
-	stopAllMotors();
+	//Use only IEM sensors for drivebase, Potetiometer for claw, and wait timer for lift
+
+	//STARTING POSITION
+	//close claw
+
+	//drive forwa
 
 	// Remove this function call once you have "real" code.
 	//AutonomousCodePlaceholderForTesting();
@@ -310,12 +281,18 @@ task usercontrol()
 
 			else if((SensorValue[ rightClawPot ] > CLAW_TRIGGER) && (vexRT[ Btn5U ] || vexRT[ Btn5D ]))
 				setClaw((vexRT[ Btn5U ] - vexRT[ Btn5D ]) * -127);
-
-			else
-				setClaw(0);
 		}
-		setClaw(0);
 
+		else
+			setClaw(0);
+
+
+		//clear IEM
+		if(VexRt[ Btn7D ] == 1)
+		{
+			SensorValue[ rightIEM ] = 0;
+			SensorValue[ leftIEM ] = 0;
+		}
 		//PID (yay)
 		//startTask(PIDclaw());
 
